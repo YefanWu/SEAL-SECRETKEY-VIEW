@@ -229,6 +229,26 @@ namespace seal
         return secret_key_;
     }
 
+    SecretKey KeyGenerator::inverse_secret_key() const
+    {
+        auto &context_data = *context_.key_context_data();
+        auto &parms = context_data.parms();
+        auto &coeff_modulus = parms.coeff_modulus();
+        size_t coeff_count = parms.poly_modulus_degree();
+        size_t coeff_modulus_size = coeff_modulus.size();
+
+        SecretKey inverse_secret_key = SecretKey();
+        inverse_secret_key.data().resize(mul_safe(coeff_count, coeff_modulus_size));
+        RNSIter iskRNSIter(inverse_secret_key.data().data(), coeff_count);
+        ConstRNSIter skRNSIter(secret_key_.data().data(), coeff_count);
+
+        auto ntt_tables = context_data.small_ntt_tables();
+        get_ntt_multiplication_inverse(skRNSIter, iskRNSIter, coeff_modulus_size, ntt_tables);
+        inverse_ntt_negacyclic_harvey(iskRNSIter, coeff_modulus_size, ntt_tables);
+
+        return inverse_secret_key;
+    }
+
     void KeyGenerator::compute_secret_key_array(const SEALContext::ContextData &context_data, size_t max_power)
     {
 #ifdef SEAL_DEBUG

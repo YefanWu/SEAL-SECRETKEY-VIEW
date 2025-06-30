@@ -336,6 +336,25 @@ namespace seal
                 operand, size, [&](auto I) { inverse_ntt_negacyclic_harvey(I, operand.coeff_modulus_size(), tables); });
         }
 
+        void get_ntt_multiplication_inverse(ConstCoeffIter operand, CoeffIter destination, const NTTTables &tables);
+
+        inline void get_ntt_multiplication_inverse(
+            ConstRNSIter operand, RNSIter destination, std::size_t coeff_modulus_size, ConstNTTTablesIter tables)
+        {
+            SEAL_ITERATE(iter(operand, destination, tables), coeff_modulus_size, [&](auto I) {
+                get_ntt_multiplication_inverse(get<0>(I), get<1>(I), get<2>(I));
+            });
+        }
+
+        inline void get_ntt_multiplication_inverse(ConstPolyIter operand, PolyIter destination, std::size_t size, ConstNTTTablesIter tables)
+        {
+            auto n = operand.coeff_modulus_size();
+            SEAL_ITERATE(
+                iter(operand, destination), size, [&](auto I) { get_ntt_multiplication_inverse(get<0>(I), get<1>(I), n, tables); });
+        }
+
+        std::uint64_t get_multiplication_inverse(const std::uint64_t I, std::uint64_t modulus);
+
         void ntt_negacyclic_harvey_new(CoeffIter operand, const NTTTables &tables);
         void inverse_ntt_negacyclic_harvey_new(CoeffIter operand, const NTTTables &tables);
     } // namespace util

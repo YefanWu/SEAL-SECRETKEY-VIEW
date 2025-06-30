@@ -290,6 +290,16 @@ namespace seal
             return sk_.pool();
         }
 
+        SEAL_NODISCARD inline std::string to_string()
+        {
+            return sk_.to_string();
+        }
+
+        SEAL_NODISCARD inline std::size_t coeff_count() const noexcept
+        {
+            return sk_.coeff_count();
+        }
+
     private:
         // We use a fresh memory pool with `clear_on_destruction' enabled.
         Plaintext sk_{ MemoryManager::GetPool(mm_prof_opt::mm_force_new, true) };

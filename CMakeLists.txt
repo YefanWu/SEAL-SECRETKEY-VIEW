@@ -158,6 +158,13 @@ if(SEAL_USE_MSGSL)
     endif()
 endif()
 
+find_library(GMP_LIB NAMES gmp PATHS /usr/lib/x86_64-linux-gnu)
+find_path(GMP_INCLUDE_DIR NAMES gmp.h PATHS /usr/include/x86_64-linux-gnu)
+if(GMP_LIB AND GMP_INCLUDE_DIR)
+else()
+    message(FATAL_ERROR "GMP: not found")
+endif()
+
 # [option] SEAL_USE_ZLIB (default: ON)
 set(SEAL_USE_ZLIB_OPTION_STR "Use ZLIB for compressed serialization")
 option(SEAL_USE_ZLIB ${SEAL_USE_ZLIB_OPTION_STR} ON)
@@ -706,6 +713,20 @@ message(STATUS "SEAL_BUILD_BENCH: ${SEAL_BUILD_BENCH}")
 
 if(SEAL_BUILD_BENCH)
     add_subdirectory(native/bench)
+endif()
+
+############################
+# Foxview's secretkey view #
+############################
+
+# [option] FOXVIEW_SECRETKEY_VIEW
+set(FOXVIEW_SECRETKEY_VIEW ON)
+set(FOXVIEW_SECRETKEY_VIEW_OPTION_STR "Build Foxview's secretkey view with Microsoft SEAL")
+option(FOXVIEW_SECRETKEY_VIEW ${FOXVIEW_SECRETKEY_VIEW_OPTION_STR} ON)
+message(STATUS "FOXVIEW_SECRETKEY_VIEW: ${FOXVIEW_SECRETKEY_VIEW}")
+
+if(FOXVIEW_SECRETKEY_VIEW)
+    add_subdirectory(native/secretkey_view)
 endif()
 
 #######################################

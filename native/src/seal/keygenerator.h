@@ -290,6 +290,8 @@ namespace seal
             return create_galois_keys(context_.key_context_data()->galois_tool()->get_elts_all());
         }
 
+        SecretKey inverse_secret_key() const;
+
         /**
         Enables access to private members of seal::KeyGenerator for SEAL_C.
         */

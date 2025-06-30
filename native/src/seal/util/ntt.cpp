@@ -473,5 +473,44 @@ namespace seal
             });
 #endif
         }
+    
+        void get_ntt_multiplication_inverse(ConstCoeffIter operand, CoeffIter destination, const NTTTables &tables){
+            std::uint64_t modulus = tables.modulus().value();
+            std::size_t n = std::size_t(1) << tables.coeff_count_power();
+
+            SEAL_ITERATE(iter(operand, destination), n, [&](auto I) {
+                get<1>(I) = get_multiplication_inverse(get<0>(I), modulus);
+            });
+        }
+
+        std::uint64_t get_multiplication_inverse(const std::uint64_t I, std::uint64_t modulus)
+        {
+            std::int64_t t = 0, new_t = 1;
+            std::int64_t r = modulus, new_r = I;
+
+            while (new_r != 0) {
+                std::int64_t quotient = r / new_r;
+                // Update t and new_t
+                std::int64_t temp_t = t;
+                t = new_t;
+                new_t = temp_t - quotient * new_t;
+
+                // Update r and new_r
+                std::int64_t temp_r = r;
+                r = new_r;
+                new_r = temp_r - quotient * new_r;
+            }
+
+            if (r > 1) {
+                // If gcd(I, modulus) != 1, no inverse exists
+                throw std::invalid_argument("No multiplicative inverse exists");
+            }
+
+            if (t < 0) {
+                t += modulus; // Ensure positive result
+            }
+
+            return static_cast<std::uint64_t>(t);
+        }
     } // namespace util
 } // namespace seal
